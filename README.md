@@ -50,7 +50,7 @@
 ---
 
 ## 3. 硬體介面詳細定義 (Pin Definitions)
-
+<img width="1108" height="1477" alt="image" src="https://github.com/user-attachments/assets/1d424bd6-6bc3-44c8-a923-7991ec70c7dc" />
 本專案接線嚴格參照 Raspberry Pi BCM 編碼，詳細接線表如下：
 
 ### 3.1 Raspberry Pi GPIO 配置表
