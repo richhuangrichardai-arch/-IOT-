@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧冷氣控制器</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>❄️ 智慧冷氣中控 ❄️</h1>
+            <p class="status">目前連線 IP: 192.168.137.186</p>
+
+            <div class="button-group">
+                <button onclick="sendCommand('up')" class="btn btn-up">
+                    <span class="icon">▲</span> 溫度調升
+                </button>
+
+                <button onclick="sendCommand('power')" class="btn btn-power">
+                    <span class="icon">⏻</span> 電源開/關
+                </button>
+
+                <button onclick="sendCommand('down')" class="btn btn-down">
+                    <span class="icon">▼</span> 溫度調降
+                </button>
+            </div>
+
+            <div class="footer">
+                Developed by s11345024
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 發送指令給 Python 後端
+        function sendCommand(action) {
+            fetch('/control/' + action, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // 使用 SweetAlert 顯示成功訊息 (自動關閉)
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 1000
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '錯誤',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '連線錯誤',
+                    text: '無法連接到樹莓派'
+                });
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+/* 全局設定 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* 卡片容器 */
+.card {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+h1 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.status {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+/* 按鈕群組 */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 按鈕基礎樣式 */
+.btn {
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    .btn:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+/* 個別按鈕顏色 */
+.btn-up {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+    color: #d63031;
+}
+
+.btn-power {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-down {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+    color: #00b894;
+}
+
+.icon {
+    font-size: 1.4rem;
+}
+
+.footer {
+    margin-top: 2rem;
+    font-size: 0.8rem;
+    color: #bdc3c7;
+}
