@@ -186,3 +186,90 @@ sudo ./venv/bin/python app.py
 #### 3. `static/style.css` (視覺設計)
 * **現代化 UI**：使用漸層色 (Gradient) 按鈕與卡片式 (Card) 佈局。
 * **互動回饋**：按鈕具備點擊縮放動畫 (`transform: scale`)，提升操作手感。
+
+---
+
+## 7. 關鍵程式碼說明 (Code Analysis)
+
+本章節解析 `app.py` 中控制硬體的核心邏輯，說明如何確保繼電器動作符合預期。
+
+### 7.1 安全初始化 (Safety Initialization)
+為防止系統一上電就誤觸發繼電器（導致冷氣被誤開），我們在程式啟動時強制將 GPIO 拉低。
+
+```python
+# app.py 片段
+pins = [PIN_TEMP_DOWN, PIN_TEMP_UP, PIN_POWER]
+for pin in pins:
+    GPIO.setup(pin, GPIO.OUT)
+    # ⚠️ 關鍵：預設輸出 LOW (0V)
+    # 因為繼電器設為 High Trigger，所以 LOW 代表「斷開/不動作」
+    GPIO.output(pin, GPIO.LOW)
+```
+
+### 7.2 按鈕動作模擬 (Button Simulation)
+為了模擬真實的手指按壓行為，我們不能讓 GPIO 一直保持 High，必須在短暫導通後斷開，形成一個 **脈衝 (Pulse)**。
+
+```python
+def press_button(pin):
+    try:
+        # 1. 導通繼電器 (模擬手指按下)
+        GPIO.output(pin, GPIO.HIGH)
+        
+        # 2. 暫停 0.5 秒 (模擬按壓持續時間)
+        time.sleep(0.5)
+        
+        # 3. 斷開繼電器 (模擬手指放開)
+        GPIO.output(pin, GPIO.LOW)
+        return True
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
+```
+> **邏輯解析**：
+> * `GPIO.HIGH`：繼電器線圈通電，COM 與 NO 導通 -> 遙控器發射訊號。
+> * `time.sleep(0.5)`：若時間太短，遙控器IC可能偵測不到；若太長，會變成「長按」。0.5秒是最佳經驗值。
+> * `GPIO.LOW`：恢復待機狀態，準備下一次操作。
+
+### 7.3 Web 路由映射 (Route Mapping)
+前端網頁透過 AJAX 發送字串指令，後端透過字典或條件判斷來映射到具體的 GPIO 腳位。
+
+```python
+@app.route('/control/<action>', methods=['POST'])
+def control(action):
+    # 根據網址中的 action 參數決定觸發哪個腳位
+    if action == 'power':
+        success = press_button(PIN_POWER)      # GPIO 22
+    elif action == 'up':
+        success = press_button(PIN_TEMP_UP)    # GPIO 27
+    elif action == 'down':
+        success = press_button(PIN_TEMP_DOWN)  # GPIO 17
+    
+    # 回傳 JSON 格式讓前端 SweetAlert 顯示結果
+    if success:
+        return jsonify({'status': 'success', 'message': '指令發送成功'})
+```
+
+---
+
+## 8. 程式開發注意事項 (Precautions)
+
+在實作與測試過程中，以下幾點是確保系統穩定與硬體安全的關鍵：
+
+### ⚠️ 硬體安全
+1.  **繼電器觸發模式確認**：
+    * 本程式是針對 **High Level Trigger (高電位觸發)** 撰寫。
+    * 務必檢查繼電器模組上的 **黃色跳線帽 (Jumper)** 是否插在 **H** 的位置。
+    * 若插在 L (Low)，程式邏輯需全部反轉（LOW變導通），否則會一開機就全開。
+2.  **NC 端子懸空**：
+    * 繼電器輸出端的 **NC (常閉)** 腳位絕對不能接線。若誤接，冷氣遙控器會被判定為「按鈕一直被按著」，導致遙控器當機或電池耗盡。
+
+### ⚠️ 系統權限
+1.  **Sudo 權限要求**：
+    * `RPi.GPIO` 函式庫需要存取 `/dev/gpiomem` 或 `/dev/mem`，這通常需要 root 權限。
+    * 執行程式時必須加上 `sudo`，例如：`sudo ./venv/bin/python app.py`。
+    * 若直接用 IDE (如 Thonny) 執行，需確認 IDE 是否以 root 權限開啟。
+
+### ⚠️ 網路連線
+1.  **固定 IP 設定**：
+    * 建議將樹莓派設定為固定 IP (Static IP)，以免路由器重啟後 IP 跑掉，導致手機網頁連不上。
+    * 目前的程式預設監聽 `0.0.0.0`，代表接受區網內所有裝置的連線，這是正確的設定。
