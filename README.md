@@ -142,7 +142,7 @@ sudo ./venv/bin/python app.py
  * Running on http://127.0.0.1:5000
  * Running on http://192.168.137.186:5000
 ```
-[請在此處插入終端機執行成功的截圖]
+<img width="565" height="687" alt="image" src="https://github.com/user-attachments/assets/c205a345-a63c-4d9a-8205-3d83414c3ef3" />
 
 ### 📱 使用者操作
 1.  拿出手機或電腦，連接至與樹莓派相同的 Wi-Fi。
